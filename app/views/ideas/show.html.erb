@@ -1,0 +1,57 @@
+<h1>Idea Show Page</h1>
+<h2><%= @idea.title %></h2>
+<p> <%= @idea.description %> </p>
+<label>Created by: <%= @idea.user.name %></label>
+
+
+<% if can? :crud, @idea %>
+    <%= link_to 'Edit', edit_idea_path(@idea)%>
+    <%= button_to 'Delete', idea_path(@idea), method: :delete, form: { data: {turbo_confirm: 'are you sure?'} }%>
+<% end %>
+
+
+
+<h4>Reviews</h4>
+<hr>
+
+<% @reviews.each do |review| %>
+  <div>
+    <%= review.body %>
+    <small>Reviewed <%= time_ago_in_words(review.created_at) %> ago</small>
+    <% if can? :crud, review %>
+        <%= button_to "Delete", idea_review_path(@idea, review), method: :delete,form: { data: { turbo_confirm: "Are you sure?" } } %>
+    <% end %>
+    <hr>
+  </div>
+<% end %>
+    <small>
+        <% if @like.present? %>
+            <%= button_to "Unlike", like_path(@like), method: :delete %>
+        <% else %>
+            <%= button_to "Like", idea_likes_path(@idea), method: :post %>
+        <% end %>
+    </small>
+
+
+    <p>
+        Likes: <%= @idea.likes.count %>
+    </p>
+
+
+<h3>Write an review</h3>
+
+<% if @review.errors.any? %>
+  <ul>
+    <%  @review.errors.full_messages.each do |msg| %>
+      <li><%= msg %></li>
+    <% end %>
+  </ul>
+<% end %>
+<%= form_with(model:[@idea, @review]) do |f| %>
+  <div>
+    <%= f.label :body %>
+    <br>
+    <%= f.text_area :body, cols: 50, rows: 5 %>
+  </div>
+  <%= f.submit "Answer" %>
+<% end %>
